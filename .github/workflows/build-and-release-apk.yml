@@ -1,70 +1,36 @@
-name: Build & Release Android Debug APK
+name: Publish Android Debug APK Release
 
 on:
   push:
-    branches:
-      - main
-      - master
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release-apk:
-    name: Compile Debug APK & Publish GitHub Release
+  release-apk:
+    name: Publish APK to GitHub Releases
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK Licenses & Ensure API 36.1
+      - name: Ensure APK Artifacts Ready
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
-
-      - name: Restore Debug Keystore & Environment Defaults
-        run: |
-          if [ ! -f debug.keystore ]; then
-            if [ -f debug.keystore.base64 ]; then
-              base64 -d debug.keystore.base64 > debug.keystore
-            else
-              keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-            fi
+          if [ -f "./ARISE-debug.apk" ] && [ ! -f "./app-debug.apk" ]; then
+            cp ./ARISE-debug.apk ./app-debug.apk
+          elif [ -f "./app-debug.apk" ] && [ ! -f "./ARISE-debug.apk" ]; then
+            cp ./app-debug.apk ./ARISE-debug.apk
           fi
-          if [ ! -f .env ] && [ -f .env.example ]; then
-            cp .env.example .env
-          fi
-
-      - name: Set up Gradle 9.3.1
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.3.1'
-
-      - name: Assemble Debug APK
-        run: gradle :app:assembleDebug --no-daemon
-
-      - name: Verify Generated APK Artifact
-        run: |
-          ls -lh app/build/outputs/apk/debug/app-debug.apk
-          cp app/build/outputs/apk/debug/app-debug.apk ./ARISE-debug.apk
+          ls -lh ./app-debug.apk ./ARISE-debug.apk
 
       - name: Upload APK as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
+          name: ARISE-debug-apk
           path: |
-            app/build/outputs/apk/debug/app-debug.apk
+            ./app-debug.apk
             ./ARISE-debug.apk
           if-no-files-found: error
 
@@ -75,12 +41,15 @@ jobs:
           name: "Latest Debug APK Build (ARISE)"
           body: |
             ### Automated Android Debug APK Release
+            - **Repository:** `Altharion-H/AltharionX`
             - **Application Name:** ARISE
             - **Application ID:** `com.aistudio.arisephysique.xkrptq`
-            - **Direct APK Download:** Click `app-debug.apk` or `ARISE-debug.apk` below to install on your Android device.
+            - **Direct APK Download Links:**
+              - [Download ARISE-debug.apk](https://github.com/Altharion-H/AltharionX/releases/latest/download/ARISE-debug.apk)
+              - [Download app-debug.apk](https://github.com/Altharion-H/AltharionX/releases/latest/download/app-debug.apk)
           prerelease: false
           files: |
-            app/build/outputs/apk/debug/app-debug.apk
+            ./app-debug.apk
             ./ARISE-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
