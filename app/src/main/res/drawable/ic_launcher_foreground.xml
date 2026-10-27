@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Monarch Wing Left -->
+    <path
+        android:fillColor="#7B2CBF"
+        android:pathData="M 32,36 C 36,44 42,50 48,54 L 46,62 C 40,56 34,48 30,40 Z" />
+    <path
+        android:fillColor="#00F0FF"
+        android:pathData="M 28,42 C 34,48 40,54 46,57 L 44,65 C 36,60 30,52 26,45 Z" />
+    <!-- Monarch Wing Right -->
+    <path
+        android:fillColor="#7B2CBF"
+        android:pathData="M 76,36 C 72,44 66,50 60,54 L 62,62 C 68,56 74,48 78,40 Z" />
+    <path
+        android:fillColor="#00F0FF"
+        android:pathData="M 80,42 C 74,48 68,54 62,57 L 64,65 C 72,60 78,52 82,45 Z" />
+    <!-- Central Shadow Dagger Blade -->
+    <path
+        android:fillColor="#00F0FF"
+        android:pathData="M 54,24 L 59,48 L 56,70 L 54,78 L 52,70 L 49,48 Z" />
+    <!-- Blade Core Highlight -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 54,28 L 56,48 L 54,68 L 52,48 Z" />
+    <!-- Dagger Crossguard & Energy Core -->
+    <path
+        android:fillColor="#FF0055"
+        android:pathData="M 44,48 L 64,48 L 60,52 L 48,52 Z" />
+    <!-- Core Energy Diamond -->
+    <path
+        android:fillColor="#00F0FF"
+        android:pathData="M 54,46 L 57,50 L 54,54 L 51,50 Z" />
+    <!-- Pommel / Bottom Spike -->
+    <path
+        android:fillColor="#7B2CBF"
+        android:pathData="M 54,78 L 57,84 L 54,88 L 51,84 Z" />
+</vector>

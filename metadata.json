@@ -1,0 +1,6 @@
+{
+  "name": "ARISE",
+  "description": "ARISE: Monarch Contract System - 30-Character Roster, Blood Oath Contract, AI Meal System & Day 30 Judgment",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
