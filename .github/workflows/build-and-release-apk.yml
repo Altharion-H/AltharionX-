@@ -1,4 +1,4 @@
-name: Publish Android Debug APK Release
+name: Publish High-Speed Android APK (CDN + Release)
 
 on:
   push:
@@ -6,24 +6,60 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "apk-release-and-pages"
+  cancel-in-progress: false
 
 jobs:
   release-apk:
-    name: Publish APK to GitHub Releases
+    name: Publish APK to GitHub Releases & Fastly CDN Pages
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Ensure APK Artifacts Ready
+      - name: Prepare High-Speed APK & CDN Landing Page
         run: |
           if [ -f "./ARISE-debug.apk" ] && [ ! -f "./app-debug.apk" ]; then
             cp ./ARISE-debug.apk ./app-debug.apk
           elif [ -f "./app-debug.apk" ] && [ ! -f "./ARISE-debug.apk" ]; then
             cp ./app-debug.apk ./ARISE-debug.apk
           fi
-          ls -lh ./app-debug.apk ./ARISE-debug.apk
+          mkdir -p _site
+          cp ./ARISE-debug.apk _site/ARISE-debug.apk
+          cp ./app-debug.apk _site/app-debug.apk
+          cat << 'EOF' > _site/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>ARISE Android APK - High-Speed CDN Download</title>
+            <style>
+              body { background: #05070B; color: #F0F6FC; font-family: monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+              .card { background: #0D111A; border: 1.5px solid #00F0FF; border-radius: 8px; padding: 28px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 0 24px rgba(0, 240, 255, 0.15); }
+              h1 { color: #00F0FF; font-size: 20px; margin-bottom: 8px; }
+              p { color: #8B949E; font-size: 13px; margin-bottom: 20px; }
+              .btn { display: block; background: #00F0FF; color: #000; font-weight: 900; text-decoration: none; padding: 14px 20px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
+              .btn-alt { display: block; background: #161B26; color: #FFD700; border: 1px solid #FFD700; font-weight: 700; text-decoration: none; padding: 12px 16px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <h1>ARISE • MONARCH SYSTEM APK</h1>
+              <p>Fastly Global Edge CDN • High-Speed Direct APK Download</p>
+              <a class="btn" href="./ARISE-debug.apk" download="ARISE-debug.apk">⚡ DOWNLOAD ARISE-debug.apk (FAST CDN)</a>
+              <a class="btn-alt" href="https://github.com/Altharion-H/AltharionX/releases/latest/download/ARISE-debug.apk">📦 Mirror 2: GitHub Release Direct</a>
+              <a class="btn-alt" href="https://ghfast.top/https://github.com/Altharion-H/AltharionX/releases/latest/download/ARISE-debug.apk">🚀 Mirror 3: Global Accelerated Proxy</a>
+            </div>
+          </body>
+          </html>
+          EOF
+          ls -lh _site/
 
       - name: Upload APK as Workflow Artifact
         uses: actions/upload-artifact@v4
@@ -38,15 +74,17 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: "Latest Debug APK Build (ARISE)"
+          name: "Latest High-Speed Debug APK (ARISE)"
           body: |
-            ### Automated Android Debug APK Release
-            - **Repository:** `Altharion-H/AltharionX`
-            - **Application Name:** ARISE
-            - **Application ID:** `com.aistudio.arisephysique.xkrptq`
-            - **Direct APK Download Links:**
-              - [Download ARISE-debug.apk](https://github.com/Altharion-H/AltharionX/releases/latest/download/ARISE-debug.apk)
-              - [Download app-debug.apk](https://github.com/Altharion-H/AltharionX/releases/latest/download/app-debug.apk)
+            ### ⚡ High-Speed Android Debug APK Mirrors (`Altharion-H/AltharionX`)
+            - **🚀 Mirror 1 (Global Accelerated CDN Proxy - Fastest):**
+              https://ghfast.top/https://github.com/Altharion-H/AltharionX/releases/latest/download/ARISE-debug.apk
+            - **⚡ Mirror 2 (Raw CDN Stream):**
+              https://ghfast.top/https://raw.githubusercontent.com/Altharion-H/AltharionX/main/ARISE-debug.apk
+            - **📦 Mirror 3 (Standard GitHub Release):**
+              https://github.com/Altharion-H/AltharionX/releases/latest/download/ARISE-debug.apk
+            - **📦 Mirror 4 (`app-debug.apk`):**
+              https://github.com/Altharion-H/AltharionX/releases/latest/download/app-debug.apk
           prerelease: false
           files: |
             ./app-debug.apk
